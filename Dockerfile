@@ -160,6 +160,29 @@ RUN if test $DISTRO_VER -eq 8; then \
         ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
     fi
 
+RUN if test $DEBIAN_ARCH = arm64; then \
+        VER=7.4.1-2019.02 && \
+        ARCH=aarch64-linux-gnu && \
+        DIR=gcc-linaro-${VER}-x86_64_${ARCH} && \
+        TXZ=${DIR}.tar.xz && \
+        URI=http://releases.linaro.org/components/toolchain/binaries/latest-7/${ARCH} && \
+        WORKD=/tmp/linaro && \
+        mkdir -p ${WORKD} && cd ${WORKD} && \
+        echo "Downloading gcc-linaro-${VER}" && \
+        wget --progress=dot:mega ${URI}/${TXZ} && \
+        wget -q ${URI}/${TXZ}.asc && \
+        echo "Validating checksum of compiler download" && \
+        md5sum -c ${TXZ}.asc && \
+        echo "Extracting compiler to /opt/" && \
+        tar xCf /opt ${WORKD}/${TXZ} && \
+        ln -snf ${DIR} /opt/gcc-linaro-hf && \
+        rm -rf ${WORKD} && \
+        rm -f /usr/lib/ccache/aarch64-linux-gnu-gcc && \
+        ln -s ../../bin/ccache /usr/lib/ccache/aarch64-linux-gnu-gcc && \
+        rm -f /usr/lib/ccache/aarch64-linux-gnu-g++ && \
+        ln -s ../../bin/ccache /usr/lib/ccache/aarch64-linux-gnu-g++ ; \
+    fi
+
 # - Qemu for emulating ARM on amd64
 RUN if test $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64; then \
         apt-get install -y qemu binfmt-support qemu-user-static \
